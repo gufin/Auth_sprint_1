@@ -5,5 +5,5 @@ settings = get_settings()
 app = create_app(settings)
 
 
-if __name__ == '__main__':
-    app.run(port=app.config['AUTH_PORT'])
+if __name__ == "__main__":
+    app.run(port=app.config["AUTH_PORT"])

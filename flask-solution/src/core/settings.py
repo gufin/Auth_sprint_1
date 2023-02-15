@@ -9,18 +9,20 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     AUTH_HASH_METHOD: str
     AUTH_HASH_SALT_LENGTH: int
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    access_token_lifetime: int = 600
+    refresh_token_lifetime: int = 3600
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class DevSettings(Settings):
-    FLASK_ENV: str = 'development'
-    DEBUG: bool = True
-    TESTING: bool = True
+    flask_env: str = "development"
+    debug: bool = True
+    testing: bool = True
     SQLALCHEMY_DATABASE_URI: str
 
     class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()
