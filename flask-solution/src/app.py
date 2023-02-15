@@ -1,24 +1,9 @@
-from flask import Flask
-from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
+from core.app_init import create_app
+from core.settings import get_settings
 
-from api.v1.auth import auth
-from db.db import init_db
-
-app = Flask(__name__)
+settings = get_settings()
+app = create_app(settings)
 
 
-def create_app():
-    app = Flask(__name__)
-
-    jwt = JWTManager(app)
-    init_db(app)
-    #db = SQLAlchemy(app)
-
-    app.register_blueprint(auth, url_prefix="/api/v1/auth")
-
-    return app
-
-
-if __name__ == '__main__':
-    create_app()
+if __name__ == "__main__":
+    app.run(port=app.config["AUTH_PORT"])
