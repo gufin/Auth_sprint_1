@@ -16,3 +16,12 @@ class History(BaseModel):
     user_agent: str
     ip_address: str
     auth_datetime: datetime
+
+
+class RoleBase(BaseModel):
+    name: str
+
+
+class RoleUser(BaseModel):
+    user_id: UUID4
+    role_id: UUID4
