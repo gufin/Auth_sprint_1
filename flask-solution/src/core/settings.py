@@ -26,14 +26,14 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
-# class DevSettings(Settings):
-#     flask_env: str = "development"
-#     debug: bool = True
-#     testing: bool = True
-#
-#     class Config:
-#         env_file = ".env"
-#         env_file_encoding = "utf-8"
+class DevSettings(Settings):
+    flask_env: str = "development"
+    debug: bool = True
+    testing: bool = True
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()

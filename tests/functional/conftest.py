@@ -1,9 +1,9 @@
 import requests
 
 import pytest
+from settings import app_settings
 
-
-HOST = "http://127.0.0.1:5500"
+HOST = f"http://{app_settings.auth_service_host}:{app_settings.auth_service_port}"
 
 
 @pytest.fixture()
