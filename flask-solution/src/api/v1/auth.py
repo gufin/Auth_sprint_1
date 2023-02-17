@@ -38,38 +38,39 @@ def signup():
 @auth.route("/login", methods=["POST"])
 @validate()
 def login_user(body: UserBase):
-    user = db.session.query(User).filter(User.login == body.login).first()
-    user_id = str(user.id)
-    user_agent = request.headers.get("user-agent", "")
-    user_host = request.headers.get("host", "")
-    user_info = UserHistory(
-        user_id=user_id,
-        user_agent=user_agent,
-        ip_address=user_host,
-    )
-    if user.check_password(body.password):
-        access_token = create_access_token(
-            identity=user.id,
-            expires_delta=timedelta(seconds=settings.access_token_lifetime),
-            additional_claims={"is_administrator": user.is_superuser},
+    if user := db.session.query(User).filter(User.login == body.login).first():
+        user_id = str(user.id)
+        user_agent = request.headers.get("user-agent", "")
+        user_host = request.headers.get("host", "")
+        user_info = UserHistory(
+            user_id=user_id,
+            user_agent=user_agent,
+            ip_address=user_host,
         )
-        refresh_token = create_refresh_token(
-            identity=user.id,
-            expires_delta=timedelta(seconds=settings.refresh_token_lifetime),
-        )
+        if user.check_password(body.password):
+            access_token = create_access_token(
+                identity=user.id,
+                expires_delta=timedelta(seconds=settings.access_token_lifetime),
+                additional_claims={"is_administrator": user.is_superuser},
+            )
+            refresh_token = create_refresh_token(
+                identity=user.id,
+                expires_delta=timedelta(seconds=settings.refresh_token_lifetime),
+            )
 
-        db.session.add(user_info)
-        db.session.commit()
-        db.session.remove()
-        redis_db.set(user_id, refresh_token)
-        redis_db.expire(user_id, settings.refresh_token_lifetime)
-        return jsonify(
-            {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-            }
-        )
-    return jsonify({"message": "Wrong password"})
+            db.session.add(user_info)
+            db.session.commit()
+            db.session.remove()
+            redis_db.set(user_id, refresh_token)
+            redis_db.expire(user_id, settings.refresh_token_lifetime)
+            return jsonify(
+                {
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
+                }
+            )
+        return jsonify({"message": "Wrong password"}), HTTPStatus.CONFLICT
+    return jsonify({"message": "Login not found"}), HTTPStatus.CONFLICT
 
 
 @auth.route("/logout", methods=["POST"])
@@ -89,7 +90,7 @@ def refresh_token():
         refresh_token = request.headers.environ.get("HTTP_AUTHORIZATION").replace(
             "Bearer ", ""
         )
-    except:
+    except Exception:
         return {"msg": "Failed to receive refresh token"}
     identity = get_jwt_identity()
     current_refresh_token = redis_db.get(identity)
@@ -110,7 +111,7 @@ def refresh_token():
                 "refresh_token": refresh_token,
             }
         )
-    return {"msg": "Invalid token"}
+    return {"msg": "Invalid token"}, HTTPStatus.CONFLICT
 
 
 @auth.route("/change-password", methods=["PATCH"])
