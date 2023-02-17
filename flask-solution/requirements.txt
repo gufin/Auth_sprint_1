@@ -10,3 +10,4 @@ Flask_JWT_Extended==4.4.4
 python-dotenv==0.21.1
 psycopg2==2.9.5
 redis==4.5.1
+flasgger==0.9.5

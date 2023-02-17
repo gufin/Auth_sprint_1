@@ -1,0 +1,313 @@
+swagger: 3.0
+openapi: 3.0.0
+
+info:
+  description: Auth API
+  version: "1.0.0"
+  title: Auth API
+tags:
+  - name: 'auth_api'
+    description: 'Authentication api'
+  - name: 'role_crud'
+    description: 'API for CRUD for role models'
+
+paths:
+
+  /api/v1/auth/signup:
+    post:
+      summary: register user
+      tags:
+        - auth_api
+      description: New User Registration
+      responses:
+        '201':
+          description: User registered
+        '400':
+          description: Login or password does not match the requirements
+        '409':
+          description: User already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: User data for registration
+
+  /api/v1/auth/login:
+    post:
+      summary: login user
+      tags:
+        - auth_api
+      description: login user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: User login details
+      responses:
+        '200':
+          description: 'successfully logged in'
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwtAuthAccess=abcde.1234; jwtAuthRefresh=abcde.3452; Path=/; HttpOnly
+        '401':
+          description: 'auth failed'
+
+  /api/v1/auth/logout:
+    post:
+      summary: log out user
+      tags:
+        - auth_api
+      description: log out user
+      responses:
+        '200':
+          description: 'successfully logged out'
+        '401':
+          description: 'auth failed'
+      security:
+        - jwtAuthAccess: [ ]
+        - jwtAuthRefresh: [ ]
+
+  /api/v1/auth/refresh:
+    post:
+      summary: update access token
+      tags:
+        - auth_api
+      description: update access token
+      responses:
+        '200':
+          description: 'succesfully updated access token'
+        '401':
+          description: 'failed to updated access token'
+      security:
+        - jwtAuthAccess: [ ]
+
+  /api/v1/auth/change-password:
+    patch:
+      summary: change password
+      tags:
+        - auth_api
+      description: Update password details
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassword'
+      responses:
+        '200':
+          description: 'succesfully updated user data'
+        '403':
+          description: 'no permissions'
+      security:
+        - jwtAuthAccess: [ ]
+
+  /api/v1/auth/history:
+    get:
+      summary: get login history
+      tags:
+        - auth_api
+      description: get login history
+      security:
+        - jwtAuthAccess: [ ]
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/History'
+
+  /api/v1/roles:
+    get:
+      summary: get a list of all roles
+      tags:
+        - role_crud
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        '403':
+          description: 'no permissions'
+      security:
+        - jwtAuthAccess: []
+
+  /api/v1/roles/create:
+    post:
+      summary: create role
+      tags:
+        - role_crud
+      responses:
+        '200':
+          description: 'OK'
+        '403':
+          description: 'no permissions'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+        - jwtAuthAccess: []
+
+  /api/v1/roles/{role_id}:
+    patch:
+      summary: edit role
+      tags:
+        - role_crud
+      responses:
+        '200':
+          description: 'OK'
+        '404':
+          description: 'role not found'
+        '403':
+          description: 'no permissions'
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+        - jwtAuthAccess: []
+    delete:
+      summary: remove role
+      tags:
+        - role_crud
+      responses:
+        '200':
+          description: 'OK'
+        '400':
+          description: 'role not found'
+        '403':
+          description: 'no permissions'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+        - jwtAuthAccess: []
+
+  /api/v1/users/assign-roles:
+    post:
+      summary: give user a role
+      tags:
+        - role_crud
+      responses:
+        '200':
+          description: 'role granted'
+        '404':
+          description: 'role or user not found'
+        '403':
+          description: 'no permissions'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUser'
+      security:
+        - jwtAuthAccess: []
+
+  /api/v1/users/delete-role:
+    delete:
+      summary: remove a role from a user
+      tags:
+        - role_crud
+      responses:
+        '200':
+          description: 'role refused'
+        '404':
+          description: 'role or user not found'
+        '403':
+          description: 'no permissions'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleUser'
+      security:
+        - jwtAuthAccess: []
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+          example: "user"
+        password:
+          type: string
+          example: '12345'
+    ChangePassword:
+      type: object
+      required:
+        - old_password
+        - new_password
+      properties:
+        old_password:
+          type: string
+          example: "12345"
+        new_password:
+          type: string
+          example: "54321"
+
+    History:
+      type: object
+      required:
+        - user_agent
+        - ip_address
+        - auth_datetime
+      properties:
+        user_agent:
+          type: string
+          example: 'Firefox'
+        ip_address:
+          type: string
+          example: '192.186.1.1'
+        auth_datetime:
+          type: string
+          format: datetime
+          example: 'Fri, 17 Feb 2023 19:03:51 +0300'
+    Role:
+      type: object
+      properties:
+        name:
+          type: string
+          example: subscriber
+    RoleUser:
+      type: object
+      required:
+        - user_id
+        - role_id
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          example: '764a0f9b-0659-4855-9019-d6c8c6325813'
+        role_id:
+          type: string
+          format: uuid
+          example: '144a0f9b-0179-4855-9019-d6c8c6325788'
+
+
+  securitySchemes:
+    jwtAuthAccess:
+      type: apiKey
+      in: cookie
+      name: JWTCOOCKIEACC
+    jwtAuthRefresh:
+      type: apiKey
+      in: cookie
+      name: JWTCOOCKIEREF
