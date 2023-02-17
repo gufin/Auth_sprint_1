@@ -46,7 +46,9 @@ class User(db.Model):
     login = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     is_superuser = db.Column(db.Boolean, unique=False, default=False)
-    roles = db.relationship("Role", secondary="users_roles", back_populates="users")
+    roles = db.relationship(
+        "Role", secondary="users_roles", back_populates="users"
+    )
 
     def __repr__(self):
         return f"<User {self.login}>"
@@ -70,7 +72,9 @@ class Role(db.Model):
         unique=True,
     )
     name = db.Column(db.String(32), unique=True, nullable=False)
-    users = db.relationship("User", secondary="users_roles", back_populates="roles")
+    users = db.relationship(
+        "User", secondary="users_roles", back_populates="roles"
+    )
 
     def __repr__(self):
         return f"<Role {self.name}>"
@@ -86,10 +90,14 @@ class UserHistory(db.Model):
         nullable=False,
         unique=True,
     )
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(
+        UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False
+    )
     user_agent = db.Column(db.String, nullable=True)
     ip_address = db.Column(db.String, nullable=True)
-    auth_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
+    auth_datetime = db.Column(
+        db.DateTime, default=datetime.now, nullable=False
+    )
 
     def __repr__(self):
         return f"UserHistory: {self.user_agent} - {self.auth_datetime}"

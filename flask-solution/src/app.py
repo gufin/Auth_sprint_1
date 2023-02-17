@@ -6,4 +6,4 @@ app = create_app(settings)
 
 
 if __name__ == "__main__":
-    app.run(port=app.config["AUTH_PORT"], host='0.0.0.0')
+    app.run(port=app.config["AUTH_PORT"])

@@ -1,5 +1,6 @@
 from datetime import datetime
-from pydantic import BaseModel, UUID4
+from pydantic import BaseModel, UUID4, UUID1
+from typing import Union
 
 
 class UserBase(BaseModel):
@@ -23,5 +24,5 @@ class RoleBase(BaseModel):
 
 
 class RoleUser(BaseModel):
-    user_id: UUID4
-    role_id: UUID4
+    user_id: Union[UUID4, UUID1]
+    role_id: Union[UUID4, UUID1]

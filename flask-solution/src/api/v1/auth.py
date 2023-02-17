@@ -50,12 +50,16 @@ def login_user(body: UserBase):
         if user.check_password(body.password):
             access_token = create_access_token(
                 identity=user.id,
-                expires_delta=timedelta(seconds=settings.access_token_lifetime),
+                expires_delta=timedelta(
+                    seconds=settings.access_token_lifetime
+                ),
                 additional_claims={"is_administrator": user.is_superuser},
             )
             refresh_token = create_refresh_token(
                 identity=user.id,
-                expires_delta=timedelta(seconds=settings.refresh_token_lifetime),
+                expires_delta=timedelta(
+                    seconds=settings.refresh_token_lifetime
+                ),
             )
 
             db.session.add(user_info)
@@ -87,9 +91,9 @@ def logout():
 @jwt_required(refresh=True)
 def refresh_token():
     try:
-        refresh_token = request.headers.environ.get("HTTP_AUTHORIZATION").replace(
-            "Bearer ", ""
-        )
+        refresh_token = request.headers.environ.get(
+            "HTTP_AUTHORIZATION"
+        ).replace("Bearer ", "")
     except Exception:
         return {"msg": "Failed to receive refresh token"}
     identity = get_jwt_identity()
@@ -125,7 +129,9 @@ def change_password(body: PasswordChange):
 
     if user.check_password(body.old_password):
         new_password = generate_password_hash(body.new_password)
-        db.session.query(User).filter_by(id=user.id).update({"password": new_password})
+        db.session.query(User).filter_by(id=user.id).update(
+            {"password": new_password}
+        )
         db.session.commit()
         return {"msg": "Password changed successfully"}
 

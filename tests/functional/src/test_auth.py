@@ -76,7 +76,9 @@ def test_change_password(login):
     response = requests.patch(url=url, headers=headers, json=data)
 
     data_rollback = {"old_password": new_pass, "new_password": "test"}
-    response_rollback = requests.patch(url=url, headers=headers, json=data_rollback)
+    response_rollback = requests.patch(
+        url=url, headers=headers, json=data_rollback
+    )
     assert response.status_code == 200
     assert response_rollback.status_code == 200
 

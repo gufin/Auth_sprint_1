@@ -13,6 +13,14 @@ db = get_db()
 users = Blueprint("users", __name__)
 
 
+@users.route("/", methods=["GET"])
+@jwt_required()
+@jwt_roles_accepted(User, "admin")
+@validate()
+def users_list():
+    return [{user.login: str(user.id)} for user in User.query.all()]
+
+
 @users.route("/roles", methods=["GET"])
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
@@ -30,9 +38,18 @@ def get_user_roles():
 @jwt_roles_accepted(User, "admin")
 @validate()
 def assign_roles(body: RoleUser):
-    if db.session.query(UserRole).filter(UserRole.user_id == body.user_id, UserRole.role_id == body.role_id).first():
-        return {"msg": "Role is already assigned to the user"}, HTTPStatus.CONFLICT
+    if (
+        db.session.query(UserRole)
+        .filter(
+            UserRole.user_id == body.user_id, UserRole.role_id == body.role_id
+        )
+        .first()
+    ):
+        return {
+            "msg": "Role is already assigned to the user"
+        }, HTTPStatus.BAD_REQUEST
     new_role_user = UserRole(user_id=body.user_id, role_id=body.role_id)
+
     db.session.add(new_role_user)
     db.session.commit()
     return {"msg": "Role is assigned to the user"}, HTTPStatus.CREATED
@@ -45,8 +62,10 @@ def assign_roles(body: RoleUser):
 def delete_role_from_user(body: RoleUser):
     role_user = (
         db.session.query(UserRole)
-            .filter(UserRole.user_id == body.user_id, UserRole.role_id == body.role_id)
-            .first()
+        .filter(
+            UserRole.user_id == body.user_id, UserRole.role_id == body.role_id
+        )
+        .first()
     )
     if not role_user:
         return {"msg": "Role for user not found"}, HTTPStatus.NOT_FOUND
