@@ -89,3 +89,14 @@ def test_get_refresh(login):
     url = f"{HOST}/api/v1/auth/refresh"
     response = requests.post(url=url, headers=headers)
     assert response.status_code == 200
+
+
+def test_history(login):
+    headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": f"Bearer {login.get('access_token')}",
+    }
+    url = f"{HOST}/api/v1/auth/history"
+    response = requests.get(url=url, headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) > 1
