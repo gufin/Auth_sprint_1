@@ -22,4 +22,3 @@ def signup() -> dict:
     data = {"login": "gufinhaly@gmail.com", "password": "test"}
     requests.post(url=url, json=data, headers=headers)
     return data
-

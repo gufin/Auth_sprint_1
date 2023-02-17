@@ -90,7 +90,7 @@ def refresh_token():
         refresh_token = request.headers.environ.get("HTTP_AUTHORIZATION").replace(
             "Bearer ", ""
         )
-    except:
+    except Exception:
         return {"msg": "Failed to receive refresh token"}
     identity = get_jwt_identity()
     current_refresh_token = redis_db.get(identity)

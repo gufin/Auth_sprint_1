@@ -1,15 +1,26 @@
 version: '3'
 services:
   db:
-    image: postgres:13
-    ports:
-      - 5432:5432
+    image: postgres:14-alpine
+    restart: always
     volumes:
-      - $HOME/postgresql/data:/var/lib/postgresql/data
+      - auth_pgdata:/var/lib/postgresql/data
     env_file:
-      - ./.env-dev
-
+      - ../flask-solution/src/.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
   redis:
     image: redis:7.0-alpine
+    volumes:
+      - redis_data:/data
     ports:
-      - 6379:6379
+      - "6379:6379"
+
+volumes:
+  auth_pgdata:
+  redis_data:
