@@ -13,6 +13,7 @@ def create_app(config_filename: object) -> Flask:
     from api.v1.auth import auth
     from api.v1.roles import roles
     from api.v1.user_roles import users
+
     app.register_blueprint(auth, url_prefix="/api/v1/auth")
     app.register_blueprint(roles, url_prefix="/api/v1/roles")
     app.register_blueprint(users, url_prefix="/api/v1/users")
