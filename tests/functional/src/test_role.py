@@ -68,7 +68,7 @@ def test_show_users(login_admin):
     }
     url = f"{HOST}/api/v1/users"
     response = requests.get(url=url, headers=headers)
-    user_id = get_user_id(data=response.json(), user_name=user_login)
+    user_id = get_user_id(data=response.json(), user_name="admin")
     assert response.status_code == 200
 
 
