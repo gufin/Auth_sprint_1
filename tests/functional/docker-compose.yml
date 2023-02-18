@@ -22,7 +22,9 @@ services:
       - "6379"
   auth_service:
     build: ../../flask-solution/
-    entrypoint: [ "sh", "/app/entrypoint.sh" ]
+    entrypoint: >
+      sh -c "flask db upgrade
+      && python3 app.py"
     ports:
       - "5500:5500"
     depends_on:
