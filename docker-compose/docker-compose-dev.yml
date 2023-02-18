@@ -6,29 +6,20 @@ services:
     volumes:
       - auth_pgdata:/var/lib/postgresql/data
     env_file:
-      - ./.env
+      - ../flask-solution/src/.env
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -q -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
       interval: 5s
       timeout: 5s
       retries: 5
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
   redis:
     image: redis:7.0-alpine
     volumes:
       - redis_data:/data
-    expose:
-      - "6379"
-  auth_service:
-    build: ../flask-solution/
     ports:
-      - "5500:5500"
-    depends_on:
-     - db
-     - redis
-    env_file:
-      - ./.env
+      - "6379:6379"
 
 volumes:
   auth_pgdata:

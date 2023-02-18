@@ -4,7 +4,7 @@ services:
     image: postgres:14-alpine
     restart: always
     volumes:
-      - auth_pgdata:/var/lib/postgresql/data
+      - auth_pgdata_test:/var/lib/postgresql/data
     env_file:
       - ./.env
     healthcheck:
@@ -17,11 +17,15 @@ services:
   redis:
     image: redis:7.0-alpine
     volumes:
-      - redis_data:/data
+      - redis_data_test:/data
     expose:
       - "6379"
   auth_service:
-    build: ../flask-solution/
+    build: ../../flask-solution/
+    entrypoint: >
+      sh -c "flask db upgrade
+      && flask superuser create admin admin
+      && python3 app.py"
     ports:
       - "5500:5500"
     depends_on:
@@ -29,7 +33,18 @@ services:
      - redis
     env_file:
       - ./.env
+  tests:
+    build: .
+    env_file:
+      - .env
+    entrypoint: >
+      sh -c "python3 utils/wait_for_pg.py
+      && python3 utils/wait_for_redis.py
+      && pytest  src"
+    depends_on:
+      - auth_service
+      - db
 
 volumes:
-  auth_pgdata:
-  redis_data:
+  auth_pgdata_test:
+  redis_data_test:
