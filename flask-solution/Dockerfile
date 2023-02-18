@@ -13,4 +13,4 @@ RUN   \
      python3 -m pip install -r /app/requirements.txt --no-cache-dir &&  \
      apk --purge del .build-deps
 COPY src/. .
-CMD ["python", "app.py"]
+CMD ["gunicorn", "wsgi:app", "--bind", ":5500"]
