@@ -7,6 +7,8 @@ import backoff
 from settings import app_settings
 from utils.helpers import backoff_handler
 
+import logging
+
 
 @backoff.on_exception(
     backoff.expo,
@@ -28,6 +30,6 @@ def pg_connect():
 
 
 if __name__ == "__main__":
-    print("Попытка установить соединение с postgres")
+    logging.info("Попытка установить соединение с postgres")
     pg_connect()
-    print("Соединение установлено успешно")
+    logging.info("Соединение установлено успешно")
