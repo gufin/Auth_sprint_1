@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import requests
 from mimesis import Person
 
@@ -10,7 +12,7 @@ def test_signup_valid_data():
     url = f"{HOST}/api/v1/auth/signup"
     data = {"login": user.email(unique=True), "password": user.password()}
     response = requests.post(url=url, json=data, headers=headers)
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
 
 
 def test_signup_invalid_data(signup):
@@ -18,7 +20,7 @@ def test_signup_invalid_data(signup):
     url = f"{HOST}/api/v1/auth/signup"
     data = {"login": signup.get("login"), "password": signup.get("password")}
     response = requests.post(url=url, json=data, headers=headers)
-    assert response.status_code == 409
+    assert response.status_code == HTTPStatus.CONFLICT
 
 
 def test_signin_valid_data(signup):
@@ -34,7 +36,7 @@ def test_signin_invalid_data(signup):
     data = {"login": signup.get("login"), "password": "123"}
     url = f"{HOST}/api/v1/auth/login"
     response = requests.post(url=url, json=data, headers=headers)
-    assert response.status_code == 409
+    assert response.status_code == HTTPStatus.CONFLICT
 
 
 def test_logout(login):
@@ -44,7 +46,7 @@ def test_logout(login):
     }
     url = f"{HOST}/api/v1/auth/logout"
     response = requests.post(url=url, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_refresh_revoked_after_logout(login):
@@ -61,7 +63,7 @@ def test_refresh_revoked_after_logout(login):
     }
     url = f"{HOST}/api/v1/auth/refresh"
     response = requests.post(url=url, headers=headers)
-    assert response.status_code == 409
+    assert response.status_code == HTTPStatus.CONFLICT
 
 
 def test_change_password(login):
@@ -79,8 +81,8 @@ def test_change_password(login):
     response_rollback = requests.patch(
         url=url, headers=headers, json=data_rollback
     )
-    assert response.status_code == 200
-    assert response_rollback.status_code == 200
+    assert response.status_code == HTTPStatus.OK
+    assert response_rollback.status_code == HTTPStatus.OK
 
 
 def test_get_refresh(login):
@@ -90,7 +92,7 @@ def test_get_refresh(login):
     }
     url = f"{HOST}/api/v1/auth/refresh"
     response = requests.post(url=url, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_history(login):
@@ -100,5 +102,5 @@ def test_history(login):
     }
     url = f"{HOST}/api/v1/auth/history"
     response = requests.get(url=url, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert len(response.json()) > 1

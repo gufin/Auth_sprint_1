@@ -22,13 +22,22 @@ services:
       - "6379"
   auth_service:
     build: ../flask-solution/
-    ports:
-      - "5500:5500"
+    expose:
+      - "5500"
     depends_on:
      - db
      - redis
     env_file:
       - ./.env
+  nginx:
+    image: nginx:1.23.1-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+    depends_on:
+      - auth_service
+    ports:
+      - "80:80"
 
 volumes:
   auth_pgdata:

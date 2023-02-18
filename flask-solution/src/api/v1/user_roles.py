@@ -29,7 +29,7 @@ def get_user_roles():
     identity = get_jwt_identity()
     user = User.query.filter_by(id=identity).first()
     if user is None:
-        return {"message": "User not found. Check uuid"}
+        return {"message": "User not found. Check uuid"}, HTTPStatus.NOT_FOUND
     return [RoleBase(name=role.name) for role in user.roles]
 
 

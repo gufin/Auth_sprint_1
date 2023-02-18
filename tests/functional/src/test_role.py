@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import requests
 import random
 from mimesis import Person
@@ -19,7 +21,7 @@ def test_create_role_by_admin(login_admin):
     url = f"{HOST}/api/v1/roles/create"
     data = {"name": role_name}
     response = requests.post(url=url, json=data, headers=headers)
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
 
 
 def test_create_role_by_user(signup, login):
@@ -31,7 +33,7 @@ def test_create_role_by_user(signup, login):
     url = f"{HOST}/api/v1/roles/create"
     data = {"name": mimerand.political_views()}
     response = requests.post(url=url, json=data, headers=headers)
-    assert response.status_code == 403
+    assert response.status_code == HTTPStatus.FORBIDDEN
 
 
 def test_show_roles(login_admin):
@@ -43,7 +45,7 @@ def test_show_roles(login_admin):
     url = f"{HOST}/api/v1/roles"
     response = requests.get(url=url, headers=headers)
     role_id = get_role_id(data=response.json(), role=role_name)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_update_role(login_admin):
@@ -56,7 +58,7 @@ def test_update_role(login_admin):
     new_name = f"{role_name}_new"
     data = {"name": new_name}
     response = requests.patch(url=url, json=data, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     role_name = new_name
 
 
@@ -69,7 +71,7 @@ def test_show_users(login_admin):
     url = f"{HOST}/api/v1/users"
     response = requests.get(url=url, headers=headers)
     user_id = get_user_id(data=response.json(), user_name="admin")
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_show_user_roles(login_admin):
@@ -79,7 +81,7 @@ def test_show_user_roles(login_admin):
     }
     url = f"{HOST}/api/v1/users/roles"
     response = requests.get(url=url, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_user_add_role(login_admin):
@@ -93,7 +95,7 @@ def test_user_add_role(login_admin):
         "role_id": role_id,
     }
     response = requests.post(url=url, json=data, headers=headers)
-    assert response.status_code == 201
+    assert response.status_code == HTTPStatus.CREATED
 
 
 def test_user_role_remove(login_admin):
@@ -104,7 +106,7 @@ def test_user_role_remove(login_admin):
     url = f"{HOST}/api/v1/users/delete-role"
     data = {"user_id": user_id, "role_id": role_id}
     response = requests.delete(url=url, json=data, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_delete_role(login_admin):
@@ -114,4 +116,4 @@ def test_delete_role(login_admin):
     }
     url = f"{HOST}/api/v1/roles/{role_id}"
     response = requests.delete(url=url, headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
