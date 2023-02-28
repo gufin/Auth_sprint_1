@@ -22,6 +22,16 @@ class Settings(BaseSettings):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     SQLALCHEMY_DATABASE_URI: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
 
+    OAUTH_CREDENTIALS = {
+        "yandex": {
+            "client_id": os.getenv("YANDEX_OAUTH_ID"),
+            "client_secret": os.getenv("YANDEX_OAUTH_SECRET"),
+            "authorize_url": "https://oauth.yandex.ru/authorize",
+            "access_token_url": "https://oauth.yandex.ru/token",
+            "base_url": "https://login.yandex.ru/",
+        },
+    }
+
     class Config:
         env_file = ".env"
 
