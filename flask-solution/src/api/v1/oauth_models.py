@@ -21,14 +21,14 @@ class OAuthSignIn(object):
         pass
 
     def get_callback_url(self):
-
         return url_for(
             "oauth_helper.oauth_callback",
             provider=self.provider_name,
             _external=True,
         )
 
-    def create_tokens(self, identity: str):
+    @staticmethod
+    def create_tokens(identity: str):
         access_token = create_access_token(
             identity=identity, additional_claims={"is_administrator": False}
         )
@@ -36,13 +36,13 @@ class OAuthSignIn(object):
         return jsonify(access_token=access_token, refresh_token=refresh_token)
 
     @classmethod
-    def get_provider(self, provider_name):
-        if self.providers is None:
-            self.providers = {}
-            for provider_class in self.__subclasses__():
+    def get_provider(cls, provider_name):
+        if cls.providers is None:
+            cls.providers = {}
+            for provider_class in cls.__subclasses__():
                 provider = provider_class()
-                self.providers[provider.provider_name] = provider
-        return self.providers[provider_name]
+                cls.providers[provider.provider_name] = provider
+        return cls.providers[provider_name]
 
 
 class YandexSignIn(OAuthSignIn):
