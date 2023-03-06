@@ -8,6 +8,10 @@ class UserBase(BaseModel):
     password: str
 
 
+class UserCreate(UserBase):
+    email: str
+
+
 class PasswordChange(BaseModel):
     old_password: str
     new_password: str

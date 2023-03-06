@@ -13,10 +13,15 @@ superuser_pb = Blueprint("superuser", __name__)
 @superuser_pb.cli.command("create")
 @click.argument("login")
 @click.argument("password")
-def createsuperuser(login, password):
-    if db.session.query(User).filter(User.login == login).first():
+@click.argument("email")
+def createsuperuser(login, password, email):
+    if (
+        db.session.query(User)
+        .filter((User.login == login) | (User.email == email))
+        .first()
+    ):
         return "User already exist. Try another login", HTTPStatus.BAD_REQUEST
-    superuser = User(login=login, is_superuser=True)
+    superuser = User(login=login, email=email, is_superuser=True)
     superuser.set_password(password)
     db.session.add(superuser)
     db.session.commit()
