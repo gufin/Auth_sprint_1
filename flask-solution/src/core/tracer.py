@@ -1,4 +1,7 @@
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.resources import Resource
@@ -9,7 +12,11 @@ settings = get_settings()
 
 
 def configure_tracer() -> None:
-    trace.set_tracer_provider(TracerProvider(resource=Resource.create(attributes={'service.name': 'auth'})))
+    trace.set_tracer_provider(
+        TracerProvider(
+            resource=Resource.create(attributes={"service.name": "auth"})
+        )
+    )
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(
             JaegerExporter(
@@ -18,4 +25,6 @@ def configure_tracer() -> None:
             )
         )
     )
-    trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(ConsoleSpanExporter())
+    )
