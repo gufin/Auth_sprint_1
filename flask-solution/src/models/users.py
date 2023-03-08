@@ -1,5 +1,5 @@
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -44,6 +44,9 @@ class User(db.Model):
         nullable=False,
     )
     login = db.Column(db.String, unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    first_name = db.Column(db.String, nullable=True)
+    last_name = db.Column(db.String, nullable=True)
     password = db.Column(db.String, nullable=False)
     is_superuser = db.Column(db.Boolean, unique=False, default=False)
     roles = db.relationship(
@@ -101,3 +104,21 @@ class UserHistory(db.Model):
 
     def __repr__(self):
         return f"UserHistory: {self.user_agent} - {self.auth_datetime}"
+
+
+class SocialAccount(db.Model):
+    __tablename__ = "social_account"
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = db.Column(
+        UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False
+    )
+    user = db.relationship(
+        User, backref=db.backref("social_accounts", lazy=True)
+    )
+
+    social_id = db.Column(db.Text, nullable=False)
+    social_name = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+        return f"<SocialAccount {self.social_name}:{self.user_id}>"
