@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
     POSTGRES_PORT: str = os.getenv("POSTGRES_PORT")
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST")
+    TRACER_ENABLED: bool = os.getenv('TRACER_ENABLED', False)
+    TRACER_HOST: str = 'jaeger'
+    TRACER_PORT: int = 6831
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     SQLALCHEMY_DATABASE_URI: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
 
@@ -30,8 +33,15 @@ class Settings(BaseSettings):
             "access_token_url": "https://oauth.yandex.ru/token",
             "base_url": "https://login.yandex.ru/",
         },
-    }
+        "google": {
+            "client_id": os.getenv("GOOGLE_OAUTH_ID"),
+            "client_secret": os.getenv("GOOGLE_OAUTH_SECRET"),
+            "authorize_url": "https://accounts.google.com/o/oauth2/auth",
+            "access_token_url": "https://accounts.google.com/o/oauth2/token",
+            "base_url": "https://www.googleapis.com/plus/v1/people/",
+        },
 
+    }
     class Config:
         env_file = ".env"
 
