@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST")
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     SQLALCHEMY_DATABASE_URI: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
-
+    REQUEST_LIMIT_PER_MINUTE: int = 20
     OAUTH_CREDENTIALS = {
         "yandex": {
             "client_id": os.getenv("YANDEX_OAUTH_ID"),
