@@ -14,6 +14,7 @@ from werkzeug.security import generate_password_hash
 
 from api.v1.models import History, PasswordChange, UserBase, UserCreate
 from core.settings import get_settings
+from core.rate_limiter import rate_limit
 from db.db_init import get_db
 from db.redis import redis_db
 from models.users import User, UserHistory
@@ -24,6 +25,7 @@ settings = get_settings()
 
 
 @auth.route("/signup", methods=["POST"])
+@rate_limit()
 def signup():
     user = UserCreate(**request.get_json())
     if (
@@ -40,6 +42,7 @@ def signup():
 
 
 @auth.route("/login", methods=["POST"])
+@rate_limit()
 @validate()
 def login_user(body: UserBase):
     if db.session.query(User).filter(User.login == body.login).first():
@@ -83,6 +86,7 @@ def login_user(body: UserBase):
 
 
 @auth.route("/logout", methods=["POST"])
+@rate_limit()
 @jwt_required()
 def logout():
     jti = get_jwt()["jti"]
@@ -93,6 +97,7 @@ def logout():
 
 
 @auth.route("/refresh", methods=["POST"])
+@rate_limit()
 @jwt_required(refresh=True)
 def refresh_token():
     try:
@@ -124,6 +129,7 @@ def refresh_token():
 
 
 @auth.route("/change-password", methods=["PATCH"])
+@rate_limit()
 @validate()
 @jwt_required()
 def change_password(body: PasswordChange):
@@ -144,6 +150,7 @@ def change_password(body: PasswordChange):
 
 
 @auth.route("/history", methods=["GET"])
+@rate_limit()
 @jwt_required()
 @validate(response_many=True)
 def get_history():

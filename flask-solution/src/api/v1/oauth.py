@@ -4,6 +4,7 @@ from flask import Blueprint
 
 from api.v1.oauth_models import OAuthSignIn
 from db.db_init import get_db
+from core.rate_limiter import rate_limit
 from models.users import SocialAccount, User
 
 db = get_db()
@@ -11,12 +12,14 @@ oauth = Blueprint("oauth_helper", __name__)
 
 
 @oauth.route("/authorize/<provider>")
+@rate_limit()
 def oauth_authorize(provider):
     oauth_provider = OAuthSignIn.get_provider(provider)
     return oauth_provider.authorize()
 
 
 @oauth.route("/callback/<provider>")
+@rate_limit()
 def oauth_callback(provider):
     oauth_provider = OAuthSignIn.get_provider(provider)
     social_id, username, email = oauth_provider.callback()
