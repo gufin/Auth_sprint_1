@@ -87,3 +87,39 @@ class YandexSignIn(OAuthSignIn):
         login = info.get("login")
         email = info.get("default_email")
         return social_id, login, email
+
+
+class GoogleSignIn(OAuthSignIn):
+
+    def __init__(self):
+        super(GoogleSignIn, self).__init__('google')
+        self.service = OAuth2Service(
+            name='google',
+            client_id=self.consumer_id,
+            client_secret=self.consumer_secret,
+            authorize_url='https://accounts.google.com/o/oauth2/auth',
+            access_token_url='https://accounts.google.com/o/oauth2/token',
+            base_url='https://www.googleapis.com/plus/v1/people/'
+        )
+
+    def authorize(self):
+        return redirect(self.service.get_authorize_url(
+            scope='email',
+            response_type='code',
+            redirect_uri=self.get_callback_url())
+        )
+
+    def callback(self):
+        if 'code' not in request.args:
+            return None, None, None
+        oauth_session = self.service.get_auth_session(
+            data={'code': request.args['code'],
+                  'grant_type': 'authorization_code',
+                  'redirect_uri': self.get_callback_url()},
+            decoder=json.loads
+        )
+        user = oauth_session.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
+        social_id = user.get("sub")
+        email = user.get("email")
+        login = user.get("sub")
+        return social_id, login, email
