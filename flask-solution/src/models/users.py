@@ -1,12 +1,23 @@
 import uuid
 from datetime import datetime
-
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db.db_init import get_db
+from core.settings import get_settings
+from models.additions.partition import get_create_users_partitions_cmds
+
+settings = get_settings()
 
 db = get_db()
+
+
+def create_partitions(target, connection, **kw):
+    for cmd in get_create_users_partitions_cmds(
+        settings.DB_USERS_PARTITIONS_NUM
+    ):
+        connection.execute(cmd)
 
 
 class UserRole(db.Model):
@@ -35,7 +46,10 @@ class UserRole(db.Model):
 
 class User(db.Model):
     __tablename__ = "users"
-
+    __table_args__ = {
+        "postgresql_partition_by": "HASH (id)",
+        "listeners": [("after_create", create_partitions)],
+    }
     id = db.Column(
         UUID(as_uuid=True),
         primary_key=True,

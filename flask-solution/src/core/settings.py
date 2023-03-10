@@ -9,11 +9,14 @@ load_dotenv()
 
 class Settings(BaseSettings):
     AUTH_PORT: int = 5500
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
+
     AUTH_HASH_METHOD: str = os.getenv("AUTH_HASH_METHOD")
     AUTH_HASH_SALT_LENGTH: int = os.getenv("AUTH_HASH_SALT_LENGTH")
     access_token_lifetime: int = 600
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DB_USERS_PARTITIONS_NUM: int = 8
     refresh_token_lifetime: int = 3600
+    REQUEST_LIMIT_PER_MINUTE: int = 20
     POSTGRES_USER: str = os.getenv("POSTGRES_USER")
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
@@ -22,9 +25,8 @@ class Settings(BaseSettings):
     TRACER_ENABLED: bool = os.getenv('TRACER_ENABLED', False)
     TRACER_HOST: str = 'jaeger'
     TRACER_PORT: int = 6831
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI: str = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
-    REQUEST_LIMIT_PER_MINUTE: int = 20
     OAUTH_CREDENTIALS = {
         "yandex": {
             "client_id": os.getenv("YANDEX_OAUTH_ID"),
