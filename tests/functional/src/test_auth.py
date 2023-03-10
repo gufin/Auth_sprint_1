@@ -10,7 +10,11 @@ def test_signup_valid_data():
     user = Person()
     headers = {"Content-Type": "application/json; charset=utf-8"}
     url = f"{HOST}/api/v1/auth/signup"
-    data = {"login": user.email(unique=True), "password": user.password()}
+    data = {
+        "email": user.email(unique=True),
+        "password": user.password(),
+        "login": user.first_name(),
+    }
     response = requests.post(url=url, json=data, headers=headers)
     assert response.status_code == HTTPStatus.CREATED
 
@@ -18,7 +22,11 @@ def test_signup_valid_data():
 def test_signup_invalid_data(signup):
     headers = {"Content-Type": "application/json; charset=utf-8"}
     url = f"{HOST}/api/v1/auth/signup"
-    data = {"login": signup.get("login"), "password": signup.get("password")}
+    data = {
+        "email": signup.get("email"),
+        "login": signup.get("login"),
+        "password": signup.get("password"),
+    }
     response = requests.post(url=url, json=data, headers=headers)
     assert response.status_code == HTTPStatus.CONFLICT
 

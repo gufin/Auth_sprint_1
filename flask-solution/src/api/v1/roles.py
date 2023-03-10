@@ -7,6 +7,7 @@ from pydantic import UUID4
 
 from decorators import jwt_roles_accepted
 from api.v1.models import RoleBase
+from core.rate_limiter import rate_limit
 from models.users import Role, User
 
 from db.db_init import get_db
@@ -17,6 +18,7 @@ roles = Blueprint("roles", __name__)
 
 
 @roles.route("/", methods=["GET"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()
@@ -25,6 +27,7 @@ def roles_list():
 
 
 @roles.route("/create", methods=["POST"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()
@@ -40,6 +43,7 @@ def create_role(body: RoleBase):
 
 
 @roles.route("/<role_id>", methods=["PATCH"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()
@@ -61,6 +65,7 @@ def update_role(role_id: UUID4, body: RoleBase):
 
 
 @roles.route("/<role_id>", methods=["DELETE"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()

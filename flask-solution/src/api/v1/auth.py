@@ -12,8 +12,9 @@ from flask_jwt_extended import (
 from flask_pydantic import validate
 from werkzeug.security import generate_password_hash
 
-from api.v1.models import History, PasswordChange, UserBase
+from api.v1.models import History, PasswordChange, UserBase, UserCreate
 from core.settings import get_settings
+from core.rate_limiter import rate_limit
 from db.db_init import get_db
 from db.redis import redis_db
 from models.users import User, UserHistory
@@ -24,11 +25,16 @@ settings = get_settings()
 
 
 @auth.route("/signup", methods=["POST"])
+@rate_limit()
 def signup():
-    user = UserBase(**request.get_json())
-    if db.session.query(User).filter(User.login == user.login).first():
+    user = UserCreate(**request.get_json())
+    if (
+        db.session.query(User)
+        .filter((User.login == user.login) | (User.email == user.email))
+        .first()
+    ):
         return {"msg": "User already exist"}, HTTPStatus.CONFLICT
-    new_user = User(login=user.login)
+    new_user = User(login=user.login, email=user.email)
     new_user.set_password(user.password)
     db.session.add(new_user)
     db.session.commit()
@@ -36,9 +42,11 @@ def signup():
 
 
 @auth.route("/login", methods=["POST"])
+@rate_limit()
 @validate()
 def login_user(body: UserBase):
-    if user := db.session.query(User).filter(User.login == body.login).first():
+    if db.session.query(User).filter(User.login == body.login).first():
+        user = db.session.query(User).filter(User.login == body.login).first()
         user_id = str(user.id)
         user_agent = request.headers.get("user-agent", "")
         user_host = request.headers.get("host", "")
@@ -78,6 +86,7 @@ def login_user(body: UserBase):
 
 
 @auth.route("/logout", methods=["POST"])
+@rate_limit()
 @jwt_required()
 def logout():
     jti = get_jwt()["jti"]
@@ -88,6 +97,7 @@ def logout():
 
 
 @auth.route("/refresh", methods=["POST"])
+@rate_limit()
 @jwt_required(refresh=True)
 def refresh_token():
     try:
@@ -119,6 +129,7 @@ def refresh_token():
 
 
 @auth.route("/change-password", methods=["PATCH"])
+@rate_limit()
 @validate()
 @jwt_required()
 def change_password(body: PasswordChange):
@@ -139,6 +150,7 @@ def change_password(body: PasswordChange):
 
 
 @auth.route("/history", methods=["GET"])
+@rate_limit()
 @jwt_required()
 @validate(response_many=True)
 def get_history():

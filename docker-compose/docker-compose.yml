@@ -20,6 +20,12 @@ services:
       - redis_data:/data
     expose:
       - "6379"
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+
+
   auth_service:
     build: ../flask-solution/
     expose:
@@ -38,6 +44,7 @@ services:
       - auth_service
     ports:
       - "80:80"
+
 
 volumes:
   auth_pgdata:

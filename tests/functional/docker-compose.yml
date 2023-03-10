@@ -24,7 +24,7 @@ services:
     build: ../../flask-solution/
     entrypoint: >
       sh -c "flask db upgrade
-      && flask superuser create admin admin
+      && flask superuser create admin admin test@ya.ru
       && python3 app.py"
     ports:
       - "5500:5500"

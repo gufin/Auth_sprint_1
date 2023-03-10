@@ -13,3 +13,8 @@ redis==4.5.1
 flasgger==0.9.5
 gunicorn==20.1.0
 gevent==21.12.0
+rauth==0.7.3
+opentelemetry-api==1.10.0
+opentelemetry-sdk==1.10.0
+opentelemetry-instrumentation-flask==0.29b1
+opentelemetry-exporter-jaeger==1.10.0

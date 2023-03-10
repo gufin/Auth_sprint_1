@@ -5,6 +5,7 @@ from flask_pydantic import validate
 
 from api.v1.models import RoleUser, RoleBase
 from decorators import jwt_roles_accepted
+from core.rate_limiter import rate_limit
 from models.users import UserRole, User
 from db.db_init import get_db
 
@@ -14,6 +15,7 @@ users = Blueprint("users", __name__)
 
 
 @users.route("/", methods=["GET"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()
@@ -22,6 +24,7 @@ def users_list():
 
 
 @users.route("/roles", methods=["GET"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate(response_many=True)
@@ -34,6 +37,7 @@ def get_user_roles():
 
 
 @users.route("/assign-role", methods=["POST"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()
@@ -56,6 +60,7 @@ def assign_roles(body: RoleUser):
 
 
 @users.route("/delete-role", methods=["DELETE"])
+@rate_limit()
 @jwt_required()
 @jwt_roles_accepted(User, "admin")
 @validate()

@@ -7,9 +7,9 @@ from mimesis import Person
 from conftest import HOST
 from utils.helpers import get_user_id, get_role_id
 
-role_name = f"designer - {random.random()}"
+role_name = f"designer - {random.randint(1, 100)}"
 role_id = None
-user_login = f"user - {random.random()}"
+user_login = f"user - {random.randint(1, 100)}"
 user_id = None
 
 
