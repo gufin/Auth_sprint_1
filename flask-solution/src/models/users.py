@@ -57,15 +57,21 @@ class User(db.Model):
         unique=True,
         nullable=False,
     )
-    login = db.Column(db.String, unique=True, nullable=False)
+    login = db.Column(db.String(255), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    first_name = db.Column(db.String, nullable=True)
-    last_name = db.Column(db.String, nullable=True)
-    password = db.Column(db.String, nullable=False)
+    first_name = db.Column(db.String(255), nullable=True)
+    last_name = db.Column(db.String(255), nullable=True)
+    password = db.Column(db.String(255), nullable=False)
     is_superuser = db.Column(db.Boolean, unique=False, default=False)
     roles = db.relationship(
         "Role", secondary="users_roles", back_populates="users"
     )
+    history = db.relationship(
+        "UserHistory", back_populates="users",
+        cascade="delete, merge, save-update")
+    social_accounts = db.relationship("SocialAccount", back_populates="users",
+                                   cascade="delete, merge, save-update")
+
 
     def __repr__(self):
         return f"<User {self.login}>"
@@ -110,10 +116,13 @@ class UserHistory(db.Model):
     user_id = db.Column(
         UUID(as_uuid=True), db.ForeignKey("users.id"), nullable=False
     )
-    user_agent = db.Column(db.String, nullable=True)
-    ip_address = db.Column(db.String, nullable=True)
+    user_agent = db.Column(db.String(255), nullable=True)
+    ip_address = db.Column(db.String(255), nullable=True)
     auth_datetime = db.Column(
         db.DateTime, default=datetime.now, nullable=False
+    )
+    user = db.relationship(
+        User, backref=db.backref("history", lazy=True)
     )
 
     def __repr__(self):
