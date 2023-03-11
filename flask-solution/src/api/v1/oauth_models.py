@@ -1,14 +1,20 @@
 import json
+from enum import Enum
 
 from flask import current_app, redirect, request, url_for, jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
 from rauth import OAuth2Service
 
 
+class Provider(Enum):
+    GOOGLE = "google"
+    YANDEX = "yandex"
+
+
 class OAuthSignIn(object):
     providers = None
 
-    def __init__(self, provider_name):
+    def __init__(self, provider_name: str):
         self.provider_name = provider_name
         credentials = current_app.config["OAUTH_CREDENTIALS"][provider_name]
         self.consumer_id = credentials["client_id"]
@@ -47,7 +53,7 @@ class OAuthSignIn(object):
 
 class YandexSignIn(OAuthSignIn):
     def __init__(self):
-        super(YandexSignIn, self).__init__("yandex")
+        super().__init__(Provider.YANDEX.value)
         self.service = OAuth2Service(
             name="yandex",
             client_id=self.consumer_id,
@@ -92,7 +98,7 @@ class YandexSignIn(OAuthSignIn):
 class GoogleSignIn(OAuthSignIn):
 
     def __init__(self):
-        super(GoogleSignIn, self).__init__('google')
+        super().__init__(Provider.GOOGLE.value)
         self.service = OAuth2Service(
             name='google',
             client_id=self.consumer_id,
